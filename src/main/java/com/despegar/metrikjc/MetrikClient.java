@@ -1,5 +1,9 @@
 package com.despegar.metrikjc;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,8 +52,22 @@ public class MetrikClient {
     
     public Runnable sendMetrics(){
 	ConcurrentLinkedQueue<Measure> old = measures.getAndSet(new ConcurrentLinkedQueue<Measure>());
+	
+	Map<String, Map<Long, List<Long>>> timers = new HashMap<String, Map<Long, List<Long>>>();
+	Map<String, Map<Long, List<Long>>> counters = new HashMap<String, Map<Long, List<Long>>>();
 	for (Measure measure : old) {
+	    Map<String, Map<Long, List<Long>>> metrics = measure.getType() == 0 ? timers : counters;
+	    Map<Long, List<Long>> metric = metrics.get(measure.getMetricName());
+	    if (metric == null){
+		metric = new HashMap<Long, List<Long>>();
+	    }
 	    
+	    List<Long> measures = metric.get(measure.getTimestamp());
+	    if (measures == null){
+		measures = new ArrayList<Long>();
+	    }
+	    
+	    measures.add(measure.getValue());
 	}
 	
 	return null;
