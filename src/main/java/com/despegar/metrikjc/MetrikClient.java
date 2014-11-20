@@ -1,25 +1,17 @@
 package com.despegar.metrikjc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MetrikClient {
     private final String[] hosts;
-    private final Long sendIntervalMillis;
-    private final ScheduledExecutorService executor;
+    private Long sendIntervalMillis = 5000L;
+    private Integer maximumMeasures = 1000000;
     
-    private AtomicReference<ConcurrentLinkedQueue<Measure>> measures;
+    private Buffer buffer;
 
     public static class Builder {
 	protected String[] hosts;
 	protected Long sendIntervalMillis;
+	protected Integer maximumMeasures;
 
 	/**
 	 * @param hosts
@@ -34,6 +26,11 @@ public class MetrikClient {
 	    this.sendIntervalMillis = interval;
 	    return this;
 	}
+	
+	public Builder withMaximumMeasures(Integer max) {
+	    this.maximumMeasures = max;
+	    return this;
+	}
 
 	public MetrikClient build() {
 	    return new MetrikClient(this);
@@ -43,34 +40,9 @@ public class MetrikClient {
     private MetrikClient(Builder builder) {
 	this.hosts = builder.hosts;
 	this.sendIntervalMillis = builder.sendIntervalMillis;
+	this.maximumMeasures = builder.maximumMeasures;
 	
-	measures = new AtomicReference<ConcurrentLinkedQueue<Measure>>(new ConcurrentLinkedQueue<Measure>());
-	
-	this.executor = Executors.newScheduledThreadPool(1);
-	this.executor.scheduleWithFixedDelay(sendMetrics(), this.sendIntervalMillis, this.sendIntervalMillis, TimeUnit.MILLISECONDS);
-    }
-    
-    public Runnable sendMetrics(){
-	ConcurrentLinkedQueue<Measure> old = measures.getAndSet(new ConcurrentLinkedQueue<Measure>());
-	
-	Map<String, Map<Long, List<Long>>> timers = new HashMap<String, Map<Long, List<Long>>>();
-	Map<String, Map<Long, List<Long>>> counters = new HashMap<String, Map<Long, List<Long>>>();
-	for (Measure measure : old) {
-	    Map<String, Map<Long, List<Long>>> metrics = measure.getType() == 0 ? timers : counters;
-	    Map<Long, List<Long>> metric = metrics.get(measure.getMetricName());
-	    if (metric == null){
-		metric = new HashMap<Long, List<Long>>();
-	    }
-	    
-	    List<Long> measures = metric.get(measure.getTimestamp());
-	    if (measures == null){
-		measures = new ArrayList<Long>();
-	    }
-	    
-	    measures.add(measure.getValue());
-	}
-	
-	return null;
+	this.buffer = new Buffer(this.maximumMeasures, this.sendIntervalMillis, this.hosts);
     }
 
     public void recordTime(String metricName, Long time) {
@@ -78,7 +50,7 @@ public class MetrikClient {
     }
 
     public void recordTime(String metricName, Long time, Long timestamp) {
-	measures.get().add(new Measure(metricName, time, timestamp, (byte) 0));
+	buffer.add(new Measure(metricName, time, timestamp, MetricType.TIMER));
     }
     
     public void incrementCounter(String metricName) {
@@ -90,7 +62,7 @@ public class MetrikClient {
     }
 
     public void incrementCounter(String metricName, Long timestamp, Long counts) {
-	measures.get().add(new Measure(metricName, counts, timestamp, (byte) 0));
+	buffer.add(new Measure(metricName, counts, timestamp, MetricType.COUNTER));
     }
 
 }
