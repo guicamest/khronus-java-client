@@ -64,5 +64,5 @@ public class MetrikClient {
     public void incrementCounter(String metricName, Long timestamp, Long counts) {
 	buffer.add(new Measure(metricName, counts, timestamp, MetricType.COUNTER));
     }
-
+    
 }

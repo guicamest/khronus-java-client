@@ -54,7 +54,7 @@ public class Buffer {
 	    }
 	}
 	
-	String json = JsonSerializer.toJson(timers, counters);
+	String json = new JsonSerializer.Builder().withCounters(counters).withTimers(timers).build().toJson();
 	
 	return null;
     }
