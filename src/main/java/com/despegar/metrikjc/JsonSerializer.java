@@ -35,14 +35,14 @@ public class JsonSerializer {
     public String toJson() {
 	StringBuffer json = new StringBuffer("{ \"metrics\": [");
 	
-	json.append(serializeMetrics(this.timers, "timers"));
+	json.append(serializeMetrics(this.timers, "timer"));
 
 	//split timers and counters
 	if (this.counters.size() > 0){
 	    json.append(",");
 	}
 	
-	json.append(serializeMetrics(this.counters, "counters"));
+	json.append(serializeMetrics(this.counters, "counter"));
 	
 	//end metrics
 	json.append("]}");

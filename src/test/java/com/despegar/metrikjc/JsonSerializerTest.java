@@ -18,7 +18,7 @@ public class JsonSerializerTest {
 	
 	String json = new JsonSerializer.Builder().withTimers(timers).build().toJson();
 		
-	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"responseTime\", \"mtype\":\"timers\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}", json);
+	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"responseTime\", \"mtype\":\"timer\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}", json);
     }
     
     @Test
@@ -31,7 +31,7 @@ public class JsonSerializerTest {
 	
 	String json = new JsonSerializer.Builder().withTimers(timers).build().toJson();
 	
-	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"totalTime\", \"mtype\":\"timers\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]},{ \"name\":\"responseTime\", \"mtype\":\"timers\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}", json);
+	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"totalTime\", \"mtype\":\"timer\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]},{ \"name\":\"responseTime\", \"mtype\":\"timer\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}", json);
     }
     
     @Test
@@ -45,7 +45,7 @@ public class JsonSerializerTest {
 	String json = new JsonSerializer.Builder().withTimers(timers).withCounters(counters).build().toJson();
 	
 	
-	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"responseTime\", \"mtype\":\"timers\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]},{ \"name\":\"count200\", \"mtype\":\"counters\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}",json);
+	Assert.assertEquals("{ \"metrics\": [{ \"name\":\"responseTime\", \"mtype\":\"timer\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]},{ \"name\":\"count200\", \"mtype\":\"counter\", \"measurements\":[{ \"ts\":11111, \"values\": [1234,456] }]}]}",json);
     }
     
     private Map<Long, List<Long>> createMeasure() {
