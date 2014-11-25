@@ -14,6 +14,10 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Http client wrapper. 
+ *
+ */
 public class Sender {
     private static final Logger LOG = LoggerFactory.getLogger(Sender.class);
     
@@ -71,7 +75,7 @@ public class Sender {
     }
 
     private String getHost() {
-	return hosts[0]; //FIXME to be implemented
+	return hosts[0]; //FIXME Must implement some sort of round-robin algorithm
     }
 
 }

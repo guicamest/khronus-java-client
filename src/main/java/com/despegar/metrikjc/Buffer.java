@@ -13,13 +13,36 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Stores a list of metrics in memory and periodically sends them to Metrik.
+ *
+ */
 public class Buffer {
     private static final Logger LOG = LoggerFactory.getLogger(Buffer.class);
+    /**
+     * Percentage of the total time to be dedicated for serialization
+     */
     private static final double PERCETANGE_OFINTERVAL_FORSERIALIZATION = 0.7;
-    private static final long BATCH_SIZE_TOCHECK = 5000;
+    /**
+     * Batch size to check if the time assigned for serialization is consumed
+     */
+    private static final long BATCH_SIZE_TOCHECK_TIMEOUT = 5000;
+    /**
+     * Metrics stored in memory
+     */
     private final LinkedBlockingQueue<Measure> measures;
+    /**
+     * Flush periodically the queue and send the metrics to Metrik cluster
+     */
     private final ScheduledExecutorService executor;
+    /**
+     * Http client wrapper
+     */
     private final Sender sender;
+    /**
+     * Time interval in milliseconds to flush the buffer and send the
+     * accumulated metrics
+     */
     private final double sendIntervalMillis;
     
 
@@ -39,6 +62,9 @@ public class Buffer {
 	measures.offer(measure);
     }
 
+    /**
+     * Flush periodically the queue and send the metrics to Metrik cluster
+     */
     private Runnable send() {
 	return new Runnable() {
 	    @Override
@@ -99,7 +125,7 @@ public class Buffer {
     
     
     private boolean hasTimeout(long deadlineForSerialization, long count) {
-	if (count % BATCH_SIZE_TOCHECK == 0) {
+	if (count % BATCH_SIZE_TOCHECK_TIMEOUT == 0) {
 	    if (System.currentTimeMillis() > deadlineForSerialization) {
 		return true;
 	    }

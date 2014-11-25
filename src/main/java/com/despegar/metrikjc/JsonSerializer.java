@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Serialize a list of timers and counters to the Metrik API 
+ *
+ */
 public class JsonSerializer {
     private final Map<String, Map<Long, List<Long>>> timers;
     private final Map<String, Map<Long, List<Long>>> counters;
