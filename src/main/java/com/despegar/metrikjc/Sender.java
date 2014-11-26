@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class Sender {
     private static final Logger LOG = LoggerFactory.getLogger(Sender.class);
     
-    private static final int socketTimeout = 1000;
+    private static final int socketTimeout = 3000;
     private static final int connectionRequestTimeout = 1000;
     private static final int connectTimeout = 1000;
     
@@ -62,7 +62,7 @@ public class Sender {
 	return EntityBuilder.create()
 	       .setText(json)
 	       .setContentType(ContentType.APPLICATION_JSON)
-//	       .gzipCompress()
+	       .gzipCompress()
 	       .build();
     }
 
