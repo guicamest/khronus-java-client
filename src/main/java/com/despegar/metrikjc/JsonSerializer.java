@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ public class JsonSerializer {
      * accumulated metrics
      */
     private final double sendIntervalMillis;
+    
+    private String applicationName;
 
     /**
      * Create the serializer.
@@ -35,9 +38,11 @@ public class JsonSerializer {
      * @param sendIntervalMillis
      *            Time interval in milliseconds to flush the buffer and send the
      *            accumulated metrics
+     * @param string 
      */
-    public JsonSerializer(Long sendIntervalMillis) {
+    public JsonSerializer(Long sendIntervalMillis, String applicationName) {
 	this.sendIntervalMillis = sendIntervalMillis;
+	this.applicationName = applicationName;
     }
 
     public String serialize(Collection<Measure> measures) {
@@ -91,7 +96,7 @@ public class JsonSerializer {
 	for (Map.Entry<String, Map<Long, List<Long>>> timer : metrics.entrySet()) {
 	    nMetrics--;
 	    
-	    json.append(String.format("{ \"name\":\"%s\", \"mtype\":\"%s\", \"measurements\":[",timer.getKey(), mtype));
+	    json.append(String.format("{ \"name\":\"%s\", \"mtype\":\"%s\", \"measurements\":[", getUniqueMetricName(timer.getKey()), mtype));
 	    
 	    //measures
 	    int nMeasures = timer.getValue().size();
@@ -128,6 +133,17 @@ public class JsonSerializer {
 	}
 	
 	return s.toString();
+    }
+    
+    /**
+     * Create an unique key for the specified metric
+     */
+    protected String getUniqueMetricName(String metricName) {
+	if (StringUtils.isEmpty(this.applicationName)){
+	    return metricName;
+	} 
+	
+	return this.applicationName + ":" + metricName;
     }
 
     private static String getSeparator(String sep, int count) {

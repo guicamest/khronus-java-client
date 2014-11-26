@@ -5,17 +5,13 @@ public class MetrikConfig {
     private Long sendIntervalMillis;
     private String[] hosts;
     private int maxConnections;
-    private String proxy;
-    private int proxyPort;
     private String applicationName;
 
-    public MetrikConfig(String applicationName, Integer maximumMeasures, Long sendIntervalMillis, String[] hosts, Integer maxConnections, String proxy, int proxyPort) {
+    public MetrikConfig(String applicationName, Integer maximumMeasures, Long sendIntervalMillis, String[] hosts, Integer maxConnections) {
 	this.maximumMeasures = maximumMeasures;
 	this.sendIntervalMillis = sendIntervalMillis;
 	this.hosts = hosts;
 	this.maxConnections = maxConnections;
-	this.proxy = proxy;
-	this.proxyPort = proxyPort;
 	this.applicationName = applicationName;
     }
 
@@ -49,22 +45,6 @@ public class MetrikConfig {
 
     public void setMaxConnections(int maxConnections) {
 	this.maxConnections = maxConnections;
-    }
-
-    public String getProxy() {
-	return proxy;
-    }
-
-    public void setProxy(String proxy) {
-	this.proxy = proxy;
-    }
-
-    public int getProxyPort() {
-	return proxyPort;
-    }
-
-    public void setProxyPort(int proxyPort) {
-	this.proxyPort = proxyPort;
     }
 
     public String getApplicationName() {

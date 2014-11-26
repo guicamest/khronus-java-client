@@ -36,10 +36,6 @@ public class Sender {
 	
 	HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connManager);
 	
-	if (config.getProxy() != null && config.getProxy().length() > 0){
-	    builder.setProxy(new HttpHost(config.getProxy(), config.getProxyPort()));
-	}
-	
 	this.httpClient = builder.build();
 	
 	LOG.debug("Sender to send metrics created [Hosts: %s; MaxConnections: %d; socketTimeout: %d; connectionRequestTimeout: %d; connectTimeout: %d]",

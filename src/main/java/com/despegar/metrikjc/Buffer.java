@@ -39,9 +39,9 @@ public class Buffer {
     public Buffer(MetrikConfig config) {
 	this.measures = new LinkedBlockingQueue<>(config.getMaximumMeasures());
 	this.sender = new Sender(config);
-	this.jsonSerializer = new JsonSerializer(config.getSendIntervalMillis());
+	this.jsonSerializer = new JsonSerializer(config.getSendIntervalMillis(), config.getApplicationName());
 	
-	BasicThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("metrikClientFlusher").build();
+	BasicThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("metrikClientSender").build();
 	this.executor = Executors.newScheduledThreadPool(1, threadFactory);
 	this.executor.scheduleWithFixedDelay(send(), config.getSendIntervalMillis(), config.getSendIntervalMillis(), TimeUnit.MILLISECONDS);
 	
@@ -50,7 +50,9 @@ public class Buffer {
     }
 
     public void add(Measure measure) {
-	measures.offer(measure);
+	if (!measures.offer(measure)){
+	    LOG.warn("Could not add measure because the buffer is full. Measure discarted");
+	}
     }
 
     /**

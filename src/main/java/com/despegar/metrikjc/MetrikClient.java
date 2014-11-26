@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MetrikClient {
     private Buffer buffer;
-    private String applicationName;
 
     /**
      * Helper to build the client.
@@ -41,14 +40,6 @@ public class MetrikClient {
 	 * Maximun number of connections per host
 	 */
 	int maxConnections = 50;
-	/**
-	 * Proxy host
-	 */
-	String proxy;
-	/**
-	 * Proxy port
-	 */
-	int proxyPort = 8080;
 	/**
 	 * Application name
 	 */
@@ -93,24 +84,6 @@ public class MetrikClient {
 	}
 
 	/**
-	 * @param proxy
-	 *            Proxy host
-	 */
-	public Builder withProxy(String proxy) {
-	    this.proxy = proxy;
-	    return this;
-	}
-
-	/**
-	 * @param proxyPort
-	 *            Proxy port
-	 */
-	public Builder withProxyPort(int proxyPort) {
-	    this.proxyPort = proxyPort;
-	    return this;
-	}
-
-	/**
 	 * @param appName
 	 *            Application name
 	 */
@@ -134,20 +107,13 @@ public class MetrikClient {
 		throw new RuntimeException(
 			"Fail to build MetrikClient. Support al least one host to connect to");
 	    }
-
-	    if (StringUtils.isEmpty(applicationName)) {
-		throw new RuntimeException(
-			"Fail to build MetrikClient. Support the application name");
-	    }
 	}
     }
 
     private MetrikClient(Builder builder) {
-	this.applicationName = builder.applicationName;
 	this.buffer = new Buffer(new MetrikConfig(builder.applicationName,
 		builder.maximumMeasures, builder.sendIntervalMillis,
-		builder.hosts, builder.maxConnections, builder.proxy,
-		builder.proxyPort));
+		builder.hosts, builder.maxConnections));
     }
 
     /**
@@ -175,8 +141,7 @@ public class MetrikClient {
      *            when the event happened in milliseconds since epoch
      */
     public void recordTime(String metricName, Long time, Long timestamp) {
-	buffer.add(new Measure(getUniqueName(metricName), time, timestamp,
-		MetricType.TIMER));
+	buffer.add(new Timer(metricName, time, timestamp));
     }
 
     /**
@@ -214,12 +179,9 @@ public class MetrikClient {
      *            number of times to be incremented
      */
     public void incrementCounter(String metricName, Long timestamp, Long counts) {
-	buffer.add(new Measure(getUniqueName(metricName), counts, timestamp,
-		MetricType.COUNTER));
+	buffer.add(new Counter(metricName, counts, timestamp));
     }
 
-    private String getUniqueName(String metricName) {
-	return this.applicationName + ":" + metricName;
-    }
+
 
 }
