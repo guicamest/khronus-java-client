@@ -1,52 +1,82 @@
 package com.despegar.metrikjc;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Serialize a list of timers and counters to the Metrik API 
  *
  */
 public class JsonSerializer {
-    private final Map<String, Map<Long, List<Long>>> timers;
-    private final Map<String, Map<Long, List<Long>>> counters;
-    
-    public static class Builder {
-	protected Map<String, Map<Long, List<Long>>> timers = new HashMap<>();
-	protected Map<String, Map<Long, List<Long>>> counters = new HashMap<>();
-	
-	public Builder withTimers(Map<String, Map<Long, List<Long>>> timers){
-	    this.timers = timers;
-	    return this;
-	}
-	
-	public Builder withCounters(Map<String, Map<Long, List<Long>>> counters) {
-	    this.counters = counters;
-	    return this;
-	}
-	
-	public JsonSerializer build() {
-	    return new JsonSerializer(timers, counters);
-	}
-    }
-    
-    private JsonSerializer(Map<String, Map<Long, List<Long>>> timers, Map<String, Map<Long, List<Long>>> counters) {
-	this.timers = timers;
-	this.counters = counters;
+    private static final Logger LOG = LoggerFactory.getLogger(JsonSerializer.class);
+    /**
+     * Percentage of the total time to be dedicated for serialization
+     */
+    private static final double PERCETANGE_OFINTERVAL_FORSERIALIZATION = 0.7;
+    /**
+     * Batch size to check if the time assigned for serialization is consumed
+     */
+    private static final long BATCH_SIZE_TOCHECK_TIMEOUT = 5000;
+    /**
+     * Time interval in milliseconds to flush the buffer and send the
+     * accumulated metrics
+     */
+    private final double sendIntervalMillis;
+
+    /**
+     * Create the serializer.
+     * 
+     * @param sendIntervalMillis
+     *            Time interval in milliseconds to flush the buffer and send the
+     *            accumulated metrics
+     */
+    public JsonSerializer(Long sendIntervalMillis) {
+	this.sendIntervalMillis = sendIntervalMillis;
     }
 
-    public String toJson() {
+    public String serialize(Collection<Measure> measures) {
+	long deadlineForSerialization = getDeadlineForSerialization();
+	
+	Map<String, Map<Long, List<Long>>> timers = new HashMap<String, Map<Long, List<Long>>>();
+	Map<String, Map<Long, List<Long>>> counters = new HashMap<String, Map<Long, List<Long>>>();
+	long count = 1;
+	for (Measure measure : measures) {
+	    Map<String, Map<Long, List<Long>>> metrics = measure.getType() == MetricType.TIMER ? timers : counters;
+
+	    Map<Long, List<Long>> metric = putMetricIfAbsent(metrics, measure.getMetricName());
+	    List<Long> measurements = putTimestampIfAbsent(metric, measure.getTimestamp());
+	    
+	    measurements.add(measure.getValue());
+	    
+	    if (hasTimeout(deadlineForSerialization, count)){
+		LOG.warn("Timeout was reached during serialization of metrics. Some will be discarted");
+		break;
+	    }
+	    
+	    count++;
+	}
+	
+	return toJson(timers, counters);
+    }
+    
+    
+    private String toJson(Map<String, Map<Long, List<Long>>> timers, Map<String, Map<Long, List<Long>>> counters) {
 	StringBuffer json = new StringBuffer("{ \"metrics\": [");
 	
-	json.append(serializeMetrics(this.timers, "timer"));
+	json.append(serializeMetrics(timers, "timer"));
 
 	//split timers and counters
-	if (this.counters.size() > 0){
+	if (counters.size() > 0){
 	    json.append(",");
 	}
 	
-	json.append(serializeMetrics(this.counters, "counter"));
+	json.append(serializeMetrics(counters, "counter"));
 	
 	//end metrics
 	json.append("]}");
@@ -107,5 +137,41 @@ public class JsonSerializer {
 	    return "";
 	}
     }
+    
+    private Map<Long, List<Long>> putMetricIfAbsent(Map<String, Map<Long, List<Long>>> metrics, String metricName) {
+	Map<Long, List<Long>> metric = metrics.get(metricName);
+	if (metric == null) {
+	    metric = new HashMap<Long, List<Long>>();
+	    metrics.put(metricName, metric);
+	}
+
+	return metric;
+    }
+    
+    private List<Long> putTimestampIfAbsent(Map<Long, List<Long>> metric, Long timestamp) {
+	List<Long> measures = metric.get(timestamp);
+	if (measures == null) {
+	    measures = new ArrayList<Long>();
+	    metric.put(timestamp, measures);
+	}
+	
+	return measures;
+    }
+    
+    
+    private boolean hasTimeout(long deadlineForSerialization, long count) {
+	if (count % BATCH_SIZE_TOCHECK_TIMEOUT == 0) {
+	    if (System.currentTimeMillis() > deadlineForSerialization) {
+		return true;
+	    }
+	}
+
+	return false;
+    }
+
+    private long getDeadlineForSerialization() {
+	return System.currentTimeMillis() + new Double(sendIntervalMillis * PERCETANGE_OFINTERVAL_FORSERIALIZATION).longValue();
+    }
+
     
 }
