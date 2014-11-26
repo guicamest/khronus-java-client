@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,8 @@ public class Buffer {
 	this.sender = new Sender(config);
 	this.jsonSerializer = new JsonSerializer(config.getSendIntervalMillis());
 	
-	this.executor = Executors.newScheduledThreadPool(1);
+	BasicThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("metrikClientFlusher").build();
+	this.executor = Executors.newScheduledThreadPool(1, threadFactory);
 	this.executor.scheduleWithFixedDelay(send(), config.getSendIntervalMillis(), config.getSendIntervalMillis(), TimeUnit.MILLISECONDS);
 	
 	LOG.debug("Buffer to store metrics created [MaximumMeasures: %d; SendIntervalMillis: %d]",
