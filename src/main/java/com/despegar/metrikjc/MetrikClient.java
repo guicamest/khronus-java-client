@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
  * 
  */
 public class MetrikClient {
+    private static final long DEFAULT_INCREMENT = 1L;
+    
     private Buffer buffer;
 
     /**
@@ -31,7 +33,7 @@ public class MetrikClient {
 	 * Time interval in milliseconds to flush the buffer and send the
 	 * accumulated metrics
 	 */
-	Long sendIntervalMillis = 5000L;
+	long sendIntervalMillis = 5000L;
 	/**
 	 * Maximum number of measures to be stored in memory within intervals
 	 */
@@ -59,7 +61,7 @@ public class MetrikClient {
 	 *            Time interval in milliseconds to flush the buffer and send
 	 *            the accumulated metrics
 	 */
-	public Builder withSendIntervalMillis(Long interval) {
+	public Builder withSendIntervalMillis(long interval) {
 	    this.sendIntervalMillis = interval;
 	    return this;
 	}
@@ -125,7 +127,7 @@ public class MetrikClient {
      * @param time
      *            duration in milliseconds
      */
-    public void recordTime(String metricName, Long time) {
+    public void recordTime(String metricName, long time) {
 	this.recordTime(metricName, time, System.currentTimeMillis());
     }
 
@@ -140,7 +142,7 @@ public class MetrikClient {
      * @param timestamp
      *            when the event happened in milliseconds since epoch
      */
-    public void recordTime(String metricName, Long time, Long timestamp) {
+    public void recordTime(String metricName, long time, long timestamp) {
 	buffer.add(new Timer(metricName, time, timestamp));
     }
 
@@ -163,8 +165,8 @@ public class MetrikClient {
      * @param timestamp
      *            when the event happened in milliseconds since epoch
      */
-    public void incrementCounter(String metricName, Long timestamp) {
-	this.incrementCounter(metricName, timestamp, 1L);
+    public void incrementCounter(String metricName, long timestamp) {
+	this.incrementCounter(metricName, timestamp, DEFAULT_INCREMENT);
     }
 
     /**
@@ -178,7 +180,7 @@ public class MetrikClient {
      * @param counts
      *            number of times to be incremented
      */
-    public void incrementCounter(String metricName, Long timestamp, Long counts) {
+    public void incrementCounter(String metricName, long timestamp, long counts) {
 	buffer.add(new Counter(metricName, counts, timestamp));
     }
 

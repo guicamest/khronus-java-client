@@ -11,11 +11,11 @@ public abstract class Measure {
 	this.value = value;
     }
 
-    public Long getTimestamp() {
+    public long getTimestamp() {
 	return timestamp;
     }
 
-    public Long getValue() {
+    public long getValue() {
 	return value;
     }
 
