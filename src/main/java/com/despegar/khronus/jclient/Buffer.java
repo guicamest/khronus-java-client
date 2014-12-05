@@ -1,4 +1,4 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Stores a list of metrics in memory and periodically sends them to Metrik.
+ * Stores a list of metrics in memory and periodically sends them to Khronus.
  *
  */
 public class Buffer {
@@ -22,7 +22,7 @@ public class Buffer {
      */
     private final LinkedBlockingQueue<Measure> measures;
     /**
-     * Flush periodically the queue and send the metrics to Metrik cluster
+     * Flush periodically the queue and send the metrics to Khronus cluster
      */
     private final ScheduledExecutorService executor;
     /**
@@ -36,12 +36,12 @@ public class Buffer {
     
     
 
-    public Buffer(MetrikConfig config) {
+    public Buffer(KhronusConfig config) {
 	this.measures = new LinkedBlockingQueue<>(config.getMaximumMeasures());
 	this.sender = new Sender(config);
 	this.jsonSerializer = new JsonSerializer(config.getSendIntervalMillis(), config.getApplicationName());
 	
-	BasicThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("metrikClientSender").build();
+	BasicThreadFactory threadFactory = new BasicThreadFactory.Builder().namingPattern("KhronusClientSender").build();
 	this.executor = Executors.newScheduledThreadPool(1, threadFactory);
 	this.executor.scheduleWithFixedDelay(send(), config.getSendIntervalMillis(), config.getSendIntervalMillis(), TimeUnit.MILLISECONDS);
 	
@@ -56,7 +56,7 @@ public class Buffer {
     }
 
     /**
-     * Flush periodically the queue and send the metrics to Metrik cluster
+     * Flush periodically the queue and send the metrics to Khronus cluster
      */
     private Runnable send() {
 	return new Runnable() {
@@ -68,7 +68,7 @@ public class Buffer {
 		
 		String json = jsonSerializer.serialize(copiedMeasures);
 		
-		LOG.trace("Json to be posted to Metrik: {}", json);
+		LOG.trace("Json to be posted to Khronus: {}", json);
 		
 		sender.send(json);
 	    }

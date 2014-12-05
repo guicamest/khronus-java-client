@@ -1,13 +1,13 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
-public class MetrikConfig {
+public class KhronusConfig {
     private int maximumMeasures;
     private Long sendIntervalMillis;
     private String[] hosts;
     private int maxConnections;
     private String applicationName;
 
-    public MetrikConfig(String applicationName, Integer maximumMeasures, Long sendIntervalMillis, String[] hosts, Integer maxConnections) {
+    public KhronusConfig(String applicationName, Integer maximumMeasures, Long sendIntervalMillis, String[] hosts, Integer maxConnections) {
 	this.maximumMeasures = maximumMeasures;
 	this.sendIntervalMillis = sendIntervalMillis;
 	this.hosts = hosts;

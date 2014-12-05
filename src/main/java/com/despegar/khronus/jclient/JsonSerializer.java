@@ -1,4 +1,4 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Serialize a list of timers and counters to the Metrik API 
+ * Serialize a list of timers and counters to the Khronus API 
  *
  */
 public class JsonSerializer {

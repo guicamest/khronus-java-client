@@ -1,4 +1,4 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 public class Counter extends Measure {
 

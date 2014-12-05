@@ -1,4 +1,4 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
@@ -27,7 +27,7 @@ public class Sender {
     private final String[] hosts;
     private final HttpClient httpClient;
     
-    public Sender(MetrikConfig config) {
+    public Sender(KhronusConfig config) {
 	this.hosts = config.getHosts();
 	
 	PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();

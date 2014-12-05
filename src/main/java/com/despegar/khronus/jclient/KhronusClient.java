@@ -1,4 +1,4 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -7,14 +7,14 @@ import org.apache.commons.lang3.StringUtils;
  * Stores each counter or time recorded. Periodically send the accumulated data.
  * 
  * Be aware that the property "sendIntervalMillis" must be less than the
- * smallest window configured in Metrik cluster.
+ * smallest window configured in Khronus cluster.
  * 
  * The metric name will be reported as "applicationName:metricName".
  * 
  * Only one instance per application is required.
  * 
  */
-public class MetrikClient {
+public class KhronusClient {
     private static final long DEFAULT_INCREMENT = 1L;
     
     private Buffer buffer;
@@ -99,21 +99,21 @@ public class MetrikClient {
 	 * 
 	 * @return an new instance of Client
 	 */
-	public MetrikClient build() {
+	public KhronusClient build() {
 	    validate();
-	    return new MetrikClient(this);
+	    return new KhronusClient(this);
 	}
 
 	private void validate() {
 	    if (hosts == null | hosts.length == 0) {
 		throw new RuntimeException(
-			"Fail to build MetrikClient. Support al least one host to connect to");
+			"Fail to build KhronusClient. Support al least one host to connect to");
 	    }
 	}
     }
 
-    private MetrikClient(Builder builder) {
-	this.buffer = new Buffer(new MetrikConfig(builder.applicationName,
+    private KhronusClient(Builder builder) {
+	this.buffer = new Buffer(new KhronusConfig(builder.applicationName,
 		builder.maximumMeasures, builder.sendIntervalMillis,
 		builder.hosts, builder.maxConnections));
     }

@@ -1,10 +1,15 @@
-package com.despegar.metrikjc;
+package com.despegar.khronus.jclient;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.despegar.khronus.jclient.Counter;
+import com.despegar.khronus.jclient.JsonSerializer;
+import com.despegar.khronus.jclient.Measure;
+import com.despegar.khronus.jclient.Timer;
 
 public class JsonSerializerTest {
     @Test

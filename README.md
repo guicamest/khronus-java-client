@@ -1,4 +1,4 @@
-metrik-java-client
+khronus-java-client
 ==================
 
-Java client (optional) for use with Metrik
+Java client (optional) for use with khronus
