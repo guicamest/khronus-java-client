@@ -43,7 +43,7 @@ public class Sender {
 
     public void send(String json) {
 	try {
-	    HttpPost httpPost = new HttpPost(String.format("http://%s/metrik/metrics", getHost()));
+	    HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
 	    httpPost.setEntity(getEntity(json));
 	    httpPost.setConfig(getDefaultConfig());
 	    
