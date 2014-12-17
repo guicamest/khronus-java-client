@@ -47,4 +47,4 @@ client.incrementCounter("pageVisits")
 
 1) The send interval should be less or equal than the minor time window configured in Khronus.
 
-2) Take in care that the client uses an LinkedBlockingQueue in each measure, who has a penalty (minor on most usages) for adding a element.
+2) Take in care that the client uses an LinkedBlockingQueue in each measure, who has a penalty in concurrency (minor on most usages) for adding a element.
