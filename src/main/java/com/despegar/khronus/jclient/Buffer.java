@@ -45,7 +45,7 @@ public class Buffer {
 	this.executor = Executors.newScheduledThreadPool(1, threadFactory);
 	this.executor.scheduleWithFixedDelay(send(), config.getSendIntervalMillis(), config.getSendIntervalMillis(), TimeUnit.MILLISECONDS);
 	
-	LOG.debug("Buffer to store metrics created [MaximumMeasures: %d; SendIntervalMillis: %d]",
+	LOG.debug("Buffer to store metrics created [MaximumMeasures: {}; SendIntervalMillis: {}]",
 		config.getMaximumMeasures(),config.getSendIntervalMillis());
     }
 

@@ -153,20 +153,19 @@ public class KhronusClient {
      *            unique name within application
      */
     public void incrementCounter(String metricName) {
-	this.incrementCounter(metricName, System.currentTimeMillis());
+	this.incrementCounter(metricName, DEFAULT_INCREMENT);
     }
 
     /**
-     * Increment by one the value of the specified metric specifying the
-     * timestamp at which happened
+     * Increment by n the value of the specified metric
      * 
      * @param metricName
      *            unique name within application
-     * @param timestamp
-     *            when the event happened in milliseconds since epoch
+     * @param counts
+     *            number of times to be incremented
      */
-    public void incrementCounter(String metricName, long timestamp) {
-	this.incrementCounter(metricName, timestamp, DEFAULT_INCREMENT);
+    public void incrementCounter(String metricName, long counts) {
+	this.incrementCounter(metricName, counts, System.currentTimeMillis());
     }
 
     /**
@@ -175,12 +174,12 @@ public class KhronusClient {
      * 
      * @param metricName
      *            unique name within application
-     * @param timestamp
-     *            when the event happened in milliseconds since epoch
      * @param counts
      *            number of times to be incremented
+     * @param timestamp
+     *            when the event happened in milliseconds since epoch
      */
-    public void incrementCounter(String metricName, long timestamp, long counts) {
+    public void incrementCounter(String metricName, long counts, long timestamp) {
 	buffer.add(new Counter(metricName, counts, timestamp));
     }
 

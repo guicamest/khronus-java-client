@@ -37,7 +37,7 @@ public class Sender {
 	
 	this.httpClient = builder.build();
 	
-	LOG.debug("Sender to send metrics created [Hosts: %s; MaxConnections: %d; socketTimeout: %d; connectionRequestTimeout: %d; connectTimeout: %d]",
+	LOG.debug("Sender to send metrics created [Hosts: {}; MaxConnections: {}; socketTimeout: {}; connectionRequestTimeout: {}; connectTimeout: {}]",
 		config.getHosts(),config.getMaxConnections(), socketTimeout, connectionRequestTimeout, connectTimeout);
     }
 
