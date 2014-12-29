@@ -6,24 +6,24 @@ public abstract class Measure {
     private long value;
 
     public Measure(String metricName, long value, long timestamp) {
-	this.metricName = metricName;
-	this.timestamp = timestamp;
-	this.value = value;
+        this.metricName = metricName;
+        this.timestamp = timestamp;
+        this.value = value;
     }
 
     public long getTimestamp() {
-	return timestamp;
+        return timestamp;
     }
 
     public long getValue() {
-	return value;
+        return value;
     }
 
     public abstract MetricType getType();
-    
-    
+
+
     public String getMetricName() {
-	return metricName;
+        return metricName;
     }
 
 }
