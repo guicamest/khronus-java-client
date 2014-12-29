@@ -60,15 +60,20 @@ public class Buffer {
         return new Runnable() {
             @Override
             public void run() {
-                LOG.debug("Starting new tick to send metrics");
-                Collection<Measure> copiedMeasures = new ArrayList<Measure>();
-                measures.drainTo(copiedMeasures);
+                try {
+                    LOG.debug("Sending metrics to Khronus...");
+                    Collection<Measure> copiedMeasures = new ArrayList<Measure>();
+                    measures.drainTo(copiedMeasures);
 
-                String json = jsonSerializer.serialize(copiedMeasures);
+                    String json = jsonSerializer.serialize(copiedMeasures);
 
-                LOG.trace("Json to be posted to Khronus: {}", json);
+                    LOG.trace("Json to be posted to Khronus: {}", json);
 
-                sender.send(json);
+                    sender.send(json);
+                    LOG.debug("Metrics sent successfully to Khronus");
+                } catch (Throwable reason) {
+                    LOG.warn("Error sending metrics to Khronus", reason);
+                }
             }
         };
     }

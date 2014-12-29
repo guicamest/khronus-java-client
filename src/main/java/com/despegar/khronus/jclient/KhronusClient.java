@@ -169,5 +169,28 @@ public class KhronusClient {
         buffer.add(new Counter(metricName, counts, timestamp));
     }
 
+    /**
+     * Record a gauge value. The timestamp at which happened is
+     * assumed to be the current time.
+     *
+     * @param metricName unique name within application
+     * @param value      gauge value
+     */
+    public void recordGauge(String metricName, long value) {
+        this.recordGauge(metricName, value, System.currentTimeMillis());
+    }
+
+    /**
+     * Record a gauge value specifying the timestamp at which
+     * happened.
+     *
+     * @param metricName unique name within application
+     * @param value       gauge value
+     * @param timestamp  event start time in milliseconds since epoch
+     */
+    public void recordGauge(String metricName, long value, long timestamp) {
+        buffer.add(new Gauge(metricName, value, timestamp));
+    }
+
 
 }
