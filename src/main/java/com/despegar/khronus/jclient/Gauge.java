@@ -6,6 +6,6 @@ public class Gauge extends Measure {
     }
     @Override
     public MetricType getType() {
-        return MetricType.GAUGE;
+        return MetricType.gauge;
     }
 }

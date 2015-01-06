@@ -8,7 +8,7 @@ public class Counter extends Measure {
 
     @Override
     public MetricType getType() {
-        return MetricType.COUNTER;
+        return MetricType.counter;
     }
 
 }
