@@ -16,7 +16,7 @@ public class JsonSerializerTest {
 	
     @BeforeClass
     public static void setup() throws Exception {
-	String propFileName = "test.properties";
+	String propFileName = "/test.properties";
 
 	InputStream inputStream = JsonSerializerTest.class
 		.getResourceAsStream(propFileName);
