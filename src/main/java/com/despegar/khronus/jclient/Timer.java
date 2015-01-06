@@ -8,7 +8,7 @@ public class Timer extends Measure {
 
     @Override
     public MetricType getType() {
-	return MetricType.TIMER;
+	return MetricType.timer;
     }
 
 }

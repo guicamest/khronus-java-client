@@ -14,63 +14,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Http client wrapper. 
- *
+ * Http client wrapper.
  */
 public class Sender {
     private static final Logger LOG = LoggerFactory.getLogger(Sender.class);
-    
+
     private static final int socketTimeout = 3000;
     private static final int connectionRequestTimeout = 1000;
     private static final int connectTimeout = 1000;
-    
+
     private final String[] hosts;
     private final HttpClient httpClient;
-    
+
     public Sender(KhronusConfig config) {
-	this.hosts = config.getHosts();
-	
-	PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
-	connManager.setMaxTotal(config.getMaxConnections());
-	
-	HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connManager);
-	
-	this.httpClient = builder.build();
-	
-	LOG.debug("Sender to send metrics created [Hosts: {}; MaxConnections: {}; socketTimeout: {}; connectionRequestTimeout: {}; connectTimeout: {}]",
-		config.getHosts(),config.getMaxConnections(), socketTimeout, connectionRequestTimeout, connectTimeout);
+        this.hosts = config.getHosts();
+
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        connManager.setMaxTotal(config.getMaxConnections());
+
+        HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connManager);
+
+        this.httpClient = builder.build();
+
+        LOG.debug("Sender to send metrics created [Hosts: {}; MaxConnections: {}; socketTimeout: {}; connectionRequestTimeout: {}; connectTimeout: {}]",
+                config.getHosts(), config.getMaxConnections(), socketTimeout, connectionRequestTimeout, connectTimeout);
     }
 
     public void send(String json) {
-	try {
-	    HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
-	    httpPost.setEntity(getEntity(json));
-	    httpPost.setConfig(getDefaultConfig());
-	    
-	    httpClient.execute(httpPost, new BasicResponseHandler());
-	} catch (Exception e) {
-	    LOG.error("Error sending metrics", e);
-	}
+        try {
+            HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
+            httpPost.setEntity(getEntity(json));
+            httpPost.setConfig(getDefaultConfig());
+
+            httpClient.execute(httpPost, new BasicResponseHandler());
+        } catch (Exception e) {
+            LOG.error("Error sending metrics", e);
+        }
     }
 
     private HttpEntity getEntity(String json) {
-	return EntityBuilder.create()
-	       .setText(json)
-	       .setContentType(ContentType.APPLICATION_JSON)
-	       .gzipCompress()
-	       .build();
+        return EntityBuilder.create()
+                .setText(json)
+                .setContentType(ContentType.APPLICATION_JSON)
+                .gzipCompress()
+                .build();
     }
 
     private RequestConfig getDefaultConfig() {
-	return RequestConfig.custom()
-		.setSocketTimeout(socketTimeout)
-		.setConnectTimeout(connectTimeout)
-		.setConnectionRequestTimeout(connectionRequestTimeout)
-		.build();
+        return RequestConfig.custom()
+                .setSocketTimeout(socketTimeout)
+                .setConnectTimeout(connectTimeout)
+                .setConnectionRequestTimeout(connectionRequestTimeout)
+                .build();
     }
 
     private String getHost() {
-	return hosts[0]; //FIXME Must implement some sort of round-robin algorithm
+        return hosts[0]; //FIXME Must implement some sort of round-robin algorithm
     }
 
 }
