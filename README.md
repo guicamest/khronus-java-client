@@ -11,7 +11,7 @@ It works by buffering metrics to send them later in a batch way.
 <dependency>
     <groupId>com.despegar</groupId>
     <artifactId>khronus-java-client</artifactId>
-    <version>0.0.2/version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
