@@ -49,7 +49,7 @@ public class Buffer {
 
     public void add(Measure measure) {
         if (!measures.offer(measure)) {
-            LOG.warn("Could not add measure because the buffer is full. Measure discarted");
+            LOG.warn("Could not add measure because the buffer is full. Measure discarted: "+measure.getMetricName());
         }
     }
 
@@ -61,16 +61,18 @@ public class Buffer {
             @Override
             public void run() {
                 try {
-                    LOG.debug("Sending metrics to Khronus...");
-                    Collection<Measure> copiedMeasures = new ArrayList<Measure>();
-                    measures.drainTo(copiedMeasures);
-
-                    String json = jsonSerializer.serialize(copiedMeasures);
-
-                    LOG.trace("Json to be posted to Khronus: {}", json);
-
-                    sender.send(json);
-                    LOG.debug("Metrics sent successfully to Khronus");
+                    if (!measures.isEmpty()){
+                        LOG.debug("Sending metrics to Khronus...");
+                        Collection<Measure> copiedMeasures = new ArrayList<Measure>();
+                        measures.drainTo(copiedMeasures);
+    
+                        String json = jsonSerializer.serialize(copiedMeasures);
+    
+                        LOG.trace("Json to be posted to Khronus: {}", json);
+    
+                        sender.send(json);
+                        LOG.debug("Metrics sent successfully to Khronus");
+                    }
                 } catch (Throwable reason) {
                     LOG.warn("Error sending metrics to Khronus", reason);
                 }

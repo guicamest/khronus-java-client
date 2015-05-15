@@ -74,7 +74,7 @@ public class JsonSerializer {
     
     
     private Map<String, Collection<Measure>> groupByMetric(Collection<Measure> measures) {
-	Map<String, Collection<Measure>> groupedByMetric = new HashMap<>();
+	Map<String, Collection<Measure>> groupedByMetric = new HashMap<String, Collection<Measure>>();
 	for (Measure measure : measures) {
 	    Collection<Measure> measuresByMetric = groupedByMetric.get(measure.getMetricName());
 	    if (measuresByMetric == null){
