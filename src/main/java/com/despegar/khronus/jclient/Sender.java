@@ -7,11 +7,14 @@ import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Http client wrapper.
@@ -24,7 +27,7 @@ public class Sender {
     private static final int connectTimeout = 1000;
 
     private final String[] hosts;
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
     public Sender(KhronusConfig config) {
         this.hosts = config.getHosts();
@@ -72,4 +75,15 @@ public class Sender {
         return hosts[0]; //FIXME Must implement some sort of round-robin algorithm
     }
 
+    /**
+     * Gracefully httpClient shutdown
+     */
+    public void shutdown() {
+        try {
+            this.httpClient.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

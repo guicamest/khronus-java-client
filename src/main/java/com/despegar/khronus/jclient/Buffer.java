@@ -80,4 +80,12 @@ public class Buffer {
         };
     }
 
+    /**
+     * Shutdown gracefully thread pool executor and sender
+     */
+    public void shutdown() {
+        if (! executor.isShutdown() )
+            executor.shutdown();
+        sender.shutdown();
+    }
 }
