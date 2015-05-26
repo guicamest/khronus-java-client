@@ -43,6 +43,11 @@ This will push to Khronus a metric named "exampleApp:pageLoad" with a measured v
 client.incrementCounter("pageVisits")
 ```
 
+#### $) On app shutdown, release resources
+```java
+client.shutdown()
+```
+
 ## Caveats 
 
 1) The send interval should be less or equal than the minor time window configured in Khronus.
