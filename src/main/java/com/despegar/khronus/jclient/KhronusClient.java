@@ -191,6 +191,12 @@ public class KhronusClient {
     public void recordGauge(String metricName, long value, long timestamp) {
         buffer.add(new Gauge(metricName, value, timestamp));
     }
-
+    /**
+     * Shutdown Gracefully Khronus executors
+     * 
+     **/ 
+    public void shutdown() {
+        buffer.shutdown();
+    }
 
 }
