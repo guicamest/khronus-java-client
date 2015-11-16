@@ -2,6 +2,10 @@ package com.despegar.khronus.jclient;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.despegar.khronus.jclient.buffer.BoundedBuffer;
+import com.despegar.khronus.jclient.buffer.Buffer;
+import com.despegar.khronus.jclient.buffer.DummyBuffer;
+
 /**
  * KhronusClient is an asynchronous client of Khronus.
  * It buffers each measurement taken by the application and then periodically sends them
@@ -43,6 +47,10 @@ public class KhronusClient {
          * Application name
          */
         String applicationName;
+        /**
+         * Act like a dummy and do nothing
+         */
+        boolean dummy = false;
 
         /**
          * @param hosts comma separated host:port
@@ -90,6 +98,15 @@ public class KhronusClient {
             this.applicationName = StringUtils.join(appName);
             return this;
         }
+        
+        /**
+         * Act like a dummy and do nothing. Default is false.
+         * @param dummy
+         */
+        public Builder withDummyMode(boolean dummy) {
+            this.dummy = dummy;
+            return this;
+        }
 
         /**
          * Create an instance of a Client. One per application is recommended
@@ -110,9 +127,14 @@ public class KhronusClient {
     }
 
     private KhronusClient(Builder builder) {
-        this.buffer = new Buffer(new KhronusConfig(builder.applicationName,
-                builder.maximumMeasures, builder.sendIntervalMillis,
-                builder.hosts, builder.maxConnections));
+	if (builder.dummy) {
+	    this.buffer = new DummyBuffer();
+	} else {
+	    this.buffer = new BoundedBuffer(new KhronusConfig(
+		    builder.applicationName, builder.maximumMeasures,
+		    builder.sendIntervalMillis, builder.hosts,
+		    builder.maxConnections));
+	}
     }
 
     /**

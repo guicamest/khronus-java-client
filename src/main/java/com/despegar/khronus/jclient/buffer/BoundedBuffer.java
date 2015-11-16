@@ -1,8 +1,13 @@
-package com.despegar.khronus.jclient;
+package com.despegar.khronus.jclient.buffer;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.despegar.khronus.jclient.JsonSerializer;
+import com.despegar.khronus.jclient.KhronusConfig;
+import com.despegar.khronus.jclient.Measure;
+import com.despegar.khronus.jclient.Sender;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,12 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Stores a list of metrics in memory and periodically sends them to Khronus.
+ * 
+ * It uses a LinkedBlockingQueue who has a penalty in concurrency (minor on most usages) for adding a element.
  */
-public class Buffer {
-    private static final Logger LOG = LoggerFactory.getLogger(Buffer.class);
+public class BoundedBuffer implements Buffer {
+    private static final Logger LOG = LoggerFactory.getLogger(BoundedBuffer.class);
     /**
      * Metrics stored in memory
      */
@@ -32,9 +40,13 @@ public class Buffer {
      * json serializer
      */
     private JsonSerializer jsonSerializer;
+    /**
+     * too many measures in the buffer
+     */
+    private AtomicBoolean overflow = new AtomicBoolean(false);
 
 
-    public Buffer(KhronusConfig config) {
+    public BoundedBuffer(KhronusConfig config) {
         this.measures = new LinkedBlockingQueue<Measure>(config.getMaximumMeasures());
         this.sender = new Sender(config);
         this.jsonSerializer = new JsonSerializer(config.getSendIntervalMillis(), config.getApplicationName());
@@ -48,9 +60,9 @@ public class Buffer {
     }
 
     public void add(Measure measure) {
-        if (!measures.offer(measure)) {
-            LOG.warn("Could not add measure because the buffer is full. Measure discarted: "+measure.getMetricName());
-        }
+	if (!measures.offer(measure) && overflow.compareAndSet(false, true)) {
+	    LOG.warn("Could not add measure because the buffer is full. Start to discard measures until send");
+	}
     }
 
     /**
@@ -65,6 +77,7 @@ public class Buffer {
                         LOG.debug("Sending metrics to Khronus...");
                         Collection<Measure> copiedMeasures = new ArrayList<Measure>();
                         measures.drainTo(copiedMeasures);
+                        overflow.set(false);
     
                         String json = jsonSerializer.serialize(copiedMeasures);
     
