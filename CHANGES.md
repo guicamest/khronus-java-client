@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4 - 0.0.5 (2015-11-16)
+
+* Add dummy mode 
+* On overflow in the buffer log a warning message only once
+
 ## 0.0.3 - 0.0.4 (2015-05-26)
 
 * Gracefully shutdown https://github.com/despegar/khronus-java-client/pull/3
