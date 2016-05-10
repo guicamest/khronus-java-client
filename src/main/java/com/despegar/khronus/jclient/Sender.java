@@ -1,7 +1,8 @@
 package com.despegar.khronus.jclient;
 
+import java.io.IOException;
+
 import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpPost;
@@ -13,8 +14,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Http client wrapper.
@@ -43,16 +42,12 @@ public class Sender {
                 config.getHosts(), config.getMaxConnections(), socketTimeout, connectionRequestTimeout, connectTimeout);
     }
 
-    public void send(String json) {
-        try {
-            HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
-            httpPost.setEntity(getEntity(json));
-            httpPost.setConfig(getDefaultConfig());
+    public void send(String json) throws Exception {
+        HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
+        httpPost.setEntity(getEntity(json));
+        httpPost.setConfig(getDefaultConfig());
 
-            httpClient.execute(httpPost, new BasicResponseHandler());
-        } catch (Exception e) {
-            LOG.error("Error sending metrics", e);
-        }
+        httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
     private HttpEntity getEntity(String json) {

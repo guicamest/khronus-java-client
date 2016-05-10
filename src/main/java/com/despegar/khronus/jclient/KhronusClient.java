@@ -143,9 +143,10 @@ public class KhronusClient {
      *
      * @param metricName unique name within application
      * @param time       duration in milliseconds
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void recordTime(String metricName, long time) {
-        this.recordTime(metricName, time, System.currentTimeMillis());
+    public void recordTime(String metricName, long time, String... tags) {
+        this.recordTime(metricName, time, System.currentTimeMillis(), tags);
     }
 
     /**
@@ -155,18 +156,20 @@ public class KhronusClient {
      * @param metricName unique name within application
      * @param time       duration in milliseconds
      * @param timestamp  event start time in milliseconds since epoch
+     * @param tags optional array of dimensions, format like "key=value". 
      */
-    public void recordTime(String metricName, long time, long timestamp) {
-        buffer.add(new Timer(metricName, time, timestamp));
+    public void recordTime(String metricName, long time, long timestamp, String... tags) {
+        buffer.add(new Timer(metricName, time, timestamp, Measure.tagsToMap(tags)));
     }
 
     /**
      * Increment by one the value of the specified metric
      *
      * @param metricName unique name within application
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void incrementCounter(String metricName) {
-        this.incrementCounter(metricName, DEFAULT_INCREMENT);
+    public void incrementCounter(String metricName, String... tags) {
+        this.incrementCounter(metricName, DEFAULT_INCREMENT, tags);
     }
 
     /**
@@ -174,9 +177,10 @@ public class KhronusClient {
      *
      * @param metricName unique name within application
      * @param counts     number of times to be incremented
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void incrementCounter(String metricName, long counts) {
-        this.incrementCounter(metricName, counts, System.currentTimeMillis());
+    public void incrementCounter(String metricName, long counts, String... tags) {
+        this.incrementCounter(metricName, counts, System.currentTimeMillis(), tags);
     }
 
     /**
@@ -186,9 +190,10 @@ public class KhronusClient {
      * @param metricName unique name within application
      * @param counts     number of times to be incremented
      * @param timestamp  when the event happened in milliseconds since epoch
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void incrementCounter(String metricName, long counts, long timestamp) {
-        buffer.add(new Counter(metricName, counts, timestamp));
+    public void incrementCounter(String metricName, long counts, long timestamp, String... tags) {
+        buffer.add(new Counter(metricName, counts, timestamp, Measure.tagsToMap(tags)));
     }
 
     /**
@@ -197,9 +202,10 @@ public class KhronusClient {
      *
      * @param metricName unique name within application
      * @param value      gauge value
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void recordGauge(String metricName, long value) {
-        this.recordGauge(metricName, value, System.currentTimeMillis());
+    public void recordGauge(String metricName, long value, String... tags) {
+        this.recordGauge(metricName, value, System.currentTimeMillis(), tags);
     }
 
     /**
@@ -209,9 +215,10 @@ public class KhronusClient {
      * @param metricName unique name within application
      * @param value       gauge value
      * @param timestamp  event start time in milliseconds since epoch
+     * @param tags optional array of dimensions, format like "key=value".
      */
-    public void recordGauge(String metricName, long value, long timestamp) {
-        buffer.add(new Gauge(metricName, value, timestamp));
+    public void recordGauge(String metricName, long value, long timestamp, String... tags) {
+        buffer.add(new Gauge(metricName, value, timestamp, Measure.tagsToMap(tags)));
     }
     /**
      * Shutdown Gracefully Khronus executors

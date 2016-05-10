@@ -86,6 +86,34 @@ public class JsonSerializerTest {
 
         Assert.assertEquals(prop.getProperty("toJson_withCountersAndTimers_returnValidJson"), json);
     }
+    
+    @Test
+    public void toJson_withCountersAndTimersAndTags_returnValidJson() {
+        JsonSerializer instance = new JsonSerializer(5000l, null);
+
+        Collection<Measure> measures = new ArrayList<Measure>();
+        measures.add(new Timer("responseTime", 1234l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
+        measures.add(new Timer("responseTime", 456l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
+        measures.add(new Counter("count200", 1234l, 11111l, Measure.tagsToMap(new String[]{"country=BR", "currency=ARS"})));
+        measures.add(new Counter("count200", 456l, 11111l, Measure.tagsToMap(new String[]{"country=BR", "currency=ARS"})));
+
+        String json = instance.serialize(measures);
+
+        Assert.assertEquals(prop.getProperty("toJson_withCountersAndTimersAndTags_returnValidJson"), json);
+    }
+    
+    @Test
+    public void toJson_oneMetricWithTags_returnsValidJson() {
+        JsonSerializer instance = new JsonSerializer(5000l, "demoApp");
+
+        Collection<Measure> measures = new ArrayList<Measure>();
+        measures.add(new Timer("responseTime", 1234l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
+        measures.add(new Timer("responseTime", 456l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
+
+        String json = instance.serialize(measures);
+
+        Assert.assertEquals(prop.getProperty("toJson_oneMetricWithTags_returnsValidJson"), json);
+    }
 
 
 }
