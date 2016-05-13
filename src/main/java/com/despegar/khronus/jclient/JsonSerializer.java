@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,14 +47,14 @@ public class JsonSerializer {
     public String serialize(Collection<Measure> measures) {
 	long deadlineForSerialization = getDeadlineForSerialization();
 	
-	Map<String, Collection<Measure>> groupedByMetric = groupByMetric(measures);
+	Map<String, Collection<Measure>> groupedByMetric = groupByMetricAndTags(measures);
 	
 	StringBuilder json = new StringBuilder("{ \"metrics\": [");
 	long count = 0;
-	for (Entry<String, Collection<Measure>> metric : groupedByMetric.entrySet()) {
+	for (Collection<Measure> groupedMeasures : groupedByMetric.values()) {
 	    count++;
 	    
-	    json.append(toJson(metric.getKey(), metric.getValue()));
+	    json.append(toJson(groupedMeasures));
 	    if (count != groupedByMetric.size()){
 		//split metrics
 		json.append(",");
@@ -73,13 +72,14 @@ public class JsonSerializer {
     }
     
     
-    private Map<String, Collection<Measure>> groupByMetric(Collection<Measure> measures) {
+    private Map<String, Collection<Measure>> groupByMetricAndTags(Collection<Measure> measures) {
 	Map<String, Collection<Measure>> groupedByMetric = new HashMap<String, Collection<Measure>>();
 	for (Measure measure : measures) {
-	    Collection<Measure> measuresByMetric = groupedByMetric.get(measure.getMetricName());
+	    String key = getGroupByKey(measure);
+	    Collection<Measure> measuresByMetric = groupedByMetric.get(key);
 	    if (measuresByMetric == null){
 		measuresByMetric = new ArrayList<Measure>();
-		groupedByMetric.put(measure.getMetricName(), measuresByMetric);
+		groupedByMetric.put(key, measuresByMetric);
 	    }
 	    
 	    measuresByMetric.add(measure);
@@ -88,10 +88,22 @@ public class JsonSerializer {
 	return groupedByMetric;
     }
 
-    private String toJson(String metricName, Collection<Measure> measures) {
+    private String getGroupByKey(Measure measure) {
+	StringBuilder key = new StringBuilder();
+	key.append(measure.getMetricName());
+	for (Map.Entry<String, String> tag : measure.getTags().entrySet()) {
+	    key.append(tag.getKey() + tag.getValue());
+	}
+
+	return key.toString();
+    }
+
+    private String toJson(Collection<Measure> measures) {
 	StringBuilder json = new StringBuilder();
 	
-	json.append(String.format("{ \"name\":\"%s\", \"mtype\":\"%s\", \"measurements\":[", getUniqueMetricName(metricName), measures.iterator().next().getType()));
+	Measure firstMetric = measures.iterator().next();
+	
+	json.append(String.format("{ \"name\":\"%s\", \"mtype\":\"%s\", \"measurements\":[", getUniqueMetricName(firstMetric.getMetricName()), firstMetric.getType()));
 	
 	int nMeasures = 0;
 	for (Measure measure : measures) {
@@ -104,8 +116,29 @@ public class JsonSerializer {
 	}
 	
 	//end measurements
-	json.append("]}");
+	json.append("]");
+
+	if (firstMetric.getTags() != null && firstMetric.getTags().size() > 0) {
+	    // already group by tags
+	    json.append(", \"tags\": {");
+	    int nTags = 0;
+	    for (Map.Entry<String, String> tag : firstMetric.getTags()
+		    .entrySet()) {
+		nTags++;
+		json.append(String.format("%s:%s", tag.getKey(), tag.getValue()));
+		// split tags
+		if (nTags != firstMetric.getTags().size()) {
+		    json.append(",");
+		}
+	    }
+
+	    // end tags
+	    json.append("}");
+	}
 	
+	//end metric
+	json.append("}");
+
 	return json.toString();
     }
     

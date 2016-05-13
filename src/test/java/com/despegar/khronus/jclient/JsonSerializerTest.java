@@ -93,12 +93,13 @@ public class JsonSerializerTest {
 
         Collection<Measure> measures = new ArrayList<Measure>();
         measures.add(new Timer("responseTime", 1234l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
-        measures.add(new Timer("responseTime", 456l, 11111l, Measure.tagsToMap(new String[]{"country=AR", "currency=ARS"})));
+        measures.add(new Timer("responseTime", 456l, 11111l, Measure.tagsToMap(new String[]{"country=BR", "currency=ARS"})));
         measures.add(new Counter("count200", 1234l, 11111l, Measure.tagsToMap(new String[]{"country=BR", "currency=ARS"})));
         measures.add(new Counter("count200", 456l, 11111l, Measure.tagsToMap(new String[]{"country=BR", "currency=ARS"})));
 
         String json = instance.serialize(measures);
 
+        System.out.println(json);
         Assert.assertEquals(prop.getProperty("toJson_withCountersAndTimersAndTags_returnValidJson"), json);
     }
     
