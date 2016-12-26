@@ -95,10 +95,14 @@ public class BoundedBuffer implements Buffer {
 
     /**
      * Shutdown gracefully thread pool executor and sender
+     * Metrics recorded while and after shutting down while not be sent
      */
     public void shutdown() {
-        if (! executor.isShutdown() )
+        if (! executor.isShutdown() ) {
             executor.shutdown();
+            // Send metrics still in the buffer, in case there are any
+            send();
+        }
         sender.shutdown();
     }
 }
