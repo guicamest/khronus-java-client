@@ -119,7 +119,7 @@ public class KhronusClient {
         }
 
         private void validate() {
-            if (hosts == null | hosts.length == 0) {
+            if (!dummy && (hosts == null || hosts.length == 0)) {
                 throw new RuntimeException(
                         "Fail to build KhronusClient. Please provide a host to send metrics to Khronus");
             }
