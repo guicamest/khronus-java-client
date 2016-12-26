@@ -75,7 +75,8 @@ public class BoundedBuffer implements Buffer {
                 try {
                     if (!measures.isEmpty()){
                         LOG.debug("Sending metrics to Khronus...");
-                        Collection<Measure> copiedMeasures = new ArrayList<Measure>();
+                        // Initialize array list with approximate size to minimize list growing many times
+                        Collection<Measure> copiedMeasures = new ArrayList<Measure>(measures.size());
                         measures.drainTo(copiedMeasures);
                         overflow.set(false);
     
