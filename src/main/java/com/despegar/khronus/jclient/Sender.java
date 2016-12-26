@@ -28,6 +28,9 @@ public class Sender {
 
     private final String[] hosts;
     private final CloseableHttpClient httpClient;
+    private final EntityBuilder entityBuilder;
+    private final BasicResponseHandler responseHandler;
+    private final RequestConfig requestConfig;
 
     public Sender(KhronusConfig config) {
         this.hosts = config.getHosts();
@@ -38,7 +41,13 @@ public class Sender {
         HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connManager);
 
         this.httpClient = builder.build();
-
+        this.responseHandler = new BasicResponseHandler();
+        this.requestConfig = RequestConfig.custom()
+                .setSocketTimeout(socketTimeout)
+                .setConnectTimeout(connectTimeout)
+                .setConnectionRequestTimeout(connectionRequestTimeout)
+                .build();
+        this.entityBuilder = EntityBuilder.create().setContentType(ContentType.APPLICATION_JSON).gzipCompress();
         LOG.debug("Sender to send metrics created [Hosts: {}; MaxConnections: {}; socketTimeout: {}; connectionRequestTimeout: {}; connectTimeout: {}]",
                 config.getHosts(), config.getMaxConnections(), socketTimeout, connectionRequestTimeout, connectTimeout);
     }
@@ -46,29 +55,13 @@ public class Sender {
     public void send(String json) {
         try {
             HttpPost httpPost = new HttpPost(String.format("http://%s/khronus/metrics", getHost()));
-            httpPost.setEntity(getEntity(json));
-            httpPost.setConfig(getDefaultConfig());
+            httpPost.setEntity(entityBuilder.setText(json).build());
+            httpPost.setConfig(requestConfig);
 
-            httpClient.execute(httpPost, new BasicResponseHandler());
+            httpClient.execute(httpPost, responseHandler);
         } catch (Exception e) {
             LOG.error("Error sending metrics", e);
         }
-    }
-
-    private HttpEntity getEntity(String json) {
-        return EntityBuilder.create()
-                .setText(json)
-                .setContentType(ContentType.APPLICATION_JSON)
-                .gzipCompress()
-                .build();
-    }
-
-    private RequestConfig getDefaultConfig() {
-        return RequestConfig.custom()
-                .setSocketTimeout(socketTimeout)
-                .setConnectTimeout(connectTimeout)
-                .setConnectionRequestTimeout(connectionRequestTimeout)
-                .build();
     }
 
     private String getHost() {
